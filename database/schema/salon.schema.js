@@ -1,0 +1,34 @@
+import mongoose from "mongoose";
+
+const SalonSchema = new mongoose.Schema({
+  service_name: {
+    type: String,
+    minlength: 1,
+    maxlength: 150,
+    required: [true, "Service name is required."],
+    indexedDB: true,
+    trim: true,
+  },
+  service_type: {
+    type: String,
+    required: [true, "Service type is required (Male/Female)."],
+    trim: true,
+    indexedDB: true,
+    enum: ["Male", "Female","Both"],
+  },
+  short_description: { type: String, minlength: 1, trim: true, default: null },
+  description: { type: String, minlength: 1, trim: true, default: null },
+  banner_image: { type: String, minlength: 1, trim: true, default: null },
+  images: [{ type: String, minlength: 2, maxlength: 250, default: null }],
+  videos: [{ type: String, minlength: 2, maxlength: 250, default: null }],
+  duration: { type: Number, min: 10, default: null },
+  rate: { type: Number, min: 1000,indexedDB: true, trim: true, default: null },
+  terms_condition: { type: String, trim: true, default: null },
+  status: { type: Boolean, default: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  deleted_at: { type: Date, default: null },
+});
+
+const salonModel = mongoose.model("salon", SalonSchema);
+export default salonModel;
