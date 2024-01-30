@@ -4,10 +4,10 @@ import userModel from "../../database/schema/user.schema.js";
 import bcrypt from "bcrypt";
 import ApiError from "../../Utils/ApiError.js";
 
-export const AddUser = catchAsync(async (req, res) => {
+export const AddUser = catchAsync(async (req, res, next) => {
   const userData = req.body;
   const saltRounds = 10;
-
+  console.log(userData);
   if (!userData.password) {
     return next(new ApiError("Password is required", 404));
   }
@@ -147,13 +147,14 @@ export const GetUsers = catchAsync(async (req, res) => {
     let newEndDate = new Date(end_date).setHours(23, 59, 59);
     filter["created_at"] = { $lte: newEndDate };
   }
-console.log(sort);
   // Fetching users
   const users = await userModel
     .find({ ...filter, ...searchQuery })
     .sort(sort)
+    .collation({ locale: "en", caseLevel: true })
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("role_id");
 
   //total pages
   const totalDocuments = await userModel.countDocuments({
