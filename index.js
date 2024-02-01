@@ -40,19 +40,22 @@ import memberSalonRouter from "./routes/Member/salon.routes.js";
 import memberSpaRouter from "./routes/Member/spa.routes.js";
 import memberLibraryRouter from "./routes/Member/library.routes.js";
 import memberHealthFitnessRouter from "./routes/Member/healthFitness.routes.js";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 import { globalErrorHandler } from "./Utils/GlobalErrorHandler.js";
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 app.use(express.json());
 var corsOptions = {
-  origin: ["http://localhost:3001"],
+  origin: ["http://localhost:3001","http://localhost:3000"],
   optionsSuccessStatus: 200,
   credentials: true,
 }
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
-// app.use(express.static("public"));
-// app.use(express.static(__dirname));
+app.use("/uploads", express.static("./uploads"));
+app.use(express.static(__dirname));
 app.use(cookieParser());
 
 // Use the socket.io module

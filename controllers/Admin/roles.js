@@ -19,12 +19,7 @@ export const GetRoles = catchAsync(async (req, res, next) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const {
-    sortField = "role_name",
-    sortOrder = "desc",
-    search,
-    role,
-  } = req.query;
+  const { sortField = "role_name", sortOrder = "desc", search, role } = req.query;
 
   // const sortField = req?.query?.sortBy || "role_name";
   // const sortDirection = req.query.sort === "desc" ? -1 : 1;
@@ -45,11 +40,7 @@ export const GetRoles = catchAsync(async (req, res, next) => {
   }
 
   // Fetch roles based on search and pagination
-  const roles = await rolesModel
-    .find(searchQuery)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit);
+  const roles = await rolesModel.find(searchQuery).sort(sort).skip(skip).limit(limit);
 
   // Count total roles with or without search
   const totalRoles = await rolesModel.countDocuments(searchQuery);
@@ -59,10 +50,8 @@ export const GetRoles = catchAsync(async (req, res, next) => {
 
   return res.status(200).json({
     status: true,
-    data: {
-      roles: roles,
-      totalPages: totalPages,
-    },
+    data: roles,
+    totalPages: totalPages,
     message: "All Roles and Permissions",
   });
 });
@@ -88,11 +77,7 @@ export const GetRolesList = catchAsync(async (req, res, next) => {
 
 export const UpdateRole = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const role = await rolesModel.findByIdAndUpdate(
-    id,
-    { ...req.body, updated_at: Date.now() },
-    { new: true, runValidators: true }
-  );
+  const role = await rolesModel.findByIdAndUpdate(id, { ...req.body, updated_at: Date.now() }, { new: true, runValidators: true });
   console.log(role);
   if (!role) return next(new ApiError("Role Not Found", 404));
   return res.status(200).json({

@@ -54,7 +54,7 @@ export const UpdateUser = catchAsync(async (req, res) => {
 
 export const ChangePassword = catchAsync(async (req, res) => {
   const userId = req.params.id;
-  const { confirmPassword, newPassword } = req.body;
+  const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({ status: false, message: "Invalid user ID.", data: null });
@@ -64,7 +64,7 @@ export const ChangePassword = catchAsync(async (req, res) => {
     return res.status(404).json({ status: false, message: "User not found", data: null });
   }
 
-  if (!newPassword) {
+  if (!new_password) {
     return res.status(400).json({
       status: false,
       data: null,
@@ -72,7 +72,7 @@ export const ChangePassword = catchAsync(async (req, res) => {
     });
   }
 
-  if (confirmPassword !== newPassword) {
+  if (confirm_password !== new_password) {
     return res.status(400).json({
       status: false,
       data: null,
@@ -90,7 +90,7 @@ export const ChangePassword = catchAsync(async (req, res) => {
   //     data: null,
   //   });
   // }
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   user.password = hashedPassword;
   const updatedUser = await user.save();
   return res.status(200).json({

@@ -20,53 +20,62 @@ export const LoginUser = catchAsync(async (req, res, next) => {
 
   const token = user.jwtToken(next);
 
-  return res
-    .status(200)
-    .cookie("token", token)
-    // .cookie("userId", user.id)
-    .json({
-      status: true,
-      data: {
-        user: user,
-        token: token,
-      },
-      message: "Login success.",
-    });
+  return (
+    res
+      .status(200)
+      .cookie("token", token)
+      // .cookie("userId", user.id)
+      .json({
+        status: true,
+        data: {
+          user: user,
+          token: token,
+        },
+        message: "Login success.",
+      })
+  );
 });
 
 export const SendOTP = catchAsync(async (req, res) => {
-  const { email } = req.body;
+  const { email_id } = req.body;
   // let otp = Math.floor(Math.random() * 100000);
   var otp = Math.floor(100000 + Math.random() * 9000);
-  const user = await userModel.findOne({ email_id: email });
+  const user = await userModel.findOne({ email_id: email_id });
+  if (!user) {
+    return res.status(401).json({ status: false, message: "User not found with this email Id." });
+  }
   user.otp = otp;
   const updatedUser = await user.save();
 
   await sendEmail({
-    email: email,
+    email: email_id,
     subject: "OTP",
     htmlFile: "email.hbs",
     otp: otp,
   });
 
   return res.status(200).json({
-    success: true,
+    status: true,
     message: `OTP has been sent successfully on email.`,
   });
 });
 
 export const VerifyOTPAndUpdatePassword = catchAsync(async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const { email_id, otp, password } = req.body;
 
-  const user = await userModel.findOne({ email_id: email });
-  console.log(user);
-  if (!otp || otp !== user.otp) {
+  const user = await userModel.findOne({ email_id: email_id });
+
+  if (!user) {
+    return res.status(401).json({ status: false, message: "User not found with this email Id." });
+  }
+  
+  if (!otp || otp != user.otp) {
     return res.status(400).json({
       success: false,
       message: "Invalid OTP",
     });
   }
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
   user.password = hashedPassword;
   user.otp = null;
   const updatedUser = await user.save();
@@ -80,7 +89,7 @@ export const VerifyOTPAndUpdatePassword = catchAsync(async (req, res) => {
 export const GetUserDetail = catchAsync(async (req, res) => {
   var _id = req.user._id;
 
-  var result = await userModel.findOne(_id ,{password:0,otp:0}).populate("role_id");
+  var result = await userModel.findOne(_id, { password: 0, otp: 0 }).populate("role_id");
   return res.status(200).json({ data: result, message: "User Details." });
 });
 export const UpdateProfile = catchAsync(async (req, res) => {
@@ -98,10 +107,15 @@ export const UpdateProfile = catchAsync(async (req, res) => {
 export const ResetPassword = catchAsync(async (req, res) => {
   var _id = req.user._id;
 
+  const passwordMatch = await bcrypt.compare(req.body.old_password, req.user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: "Old password is incorrect.", status: false, data: null });
+  }
+
   if (req.body.old_password == req.body.new_password) {
     return res.status(400).json({
       data: null,
-      response_msg: "This is already your current password.",
+      message: "This is already your current password.",
     });
   }
   const saltRounds = 10;

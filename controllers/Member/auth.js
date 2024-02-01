@@ -114,7 +114,7 @@ export const ResetPassword = catchAsync(async (req, res) => {
   if (req.body.old_password == req.body.new_password) {
     return res.status(400).json({
       data: null,
-      response_msg: "This is already your current password.",
+      message: "This is already your current password.",
     });
   }
   const hash = await bcrypt.hash(new_password, saltRounds);

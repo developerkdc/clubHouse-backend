@@ -8,7 +8,7 @@ export const AddNews = catchAsync(async (req, res) => {
 
   const newNews = new newsModel(data);
   const files = req.files;
-
+  console.log(files);
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
     newNews.banner_image = files.banner_image[0].filename;
@@ -29,9 +29,7 @@ export const UpdateNews = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(newsId)) {
-    return res
-      .status(400)
-      .json({ status: false, message: "Invalid news ID", data: null });
+    return res.status(400).json({ status: false, message: "Invalid news ID", data: null });
   }
 
   if (files && Object.keys(files).length > 0) {
@@ -40,11 +38,7 @@ export const UpdateNews = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   // console.log(updateData);
 
-  const news = await newsModel.findByIdAndUpdate(
-    newsId,
-    { $set: updateData },
-    { new: true, runValidators: true }
-  );
+  const news = await newsModel.findByIdAndUpdate(newsId, { $set: updateData }, { new: true, runValidators: true });
   if (!news) {
     return res.status(404).json({
       status: false,
@@ -64,14 +58,7 @@ export const GetNews = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const {
-    sortField = "created_at",
-    sortOrder = "desc",
-    search,
-    role,
-    start_date,
-    end_date,
-  } = req.query;
+  const { sortField = "created_at", sortOrder = "desc", search, role, start_date, end_date } = req.query;
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
@@ -82,11 +69,7 @@ export const GetNews = catchAsync(async (req, res) => {
     const searchRegex = new RegExp(".*" + search + ".*", "i");
     searchQuery = {
       ...searchQuery,
-      $or: [
-        { type: searchRegex },
-        { title: searchRegex },
-        { source: searchRegex },
-      ],
+      $or: [{ type: searchRegex }, { title: searchRegex }, { source: searchRegex }],
     };
   }
 
