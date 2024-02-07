@@ -21,6 +21,24 @@ export const GetRoles = catchAsync(async (req, res, next) => {
 
   const { sortField = "role_name", sortOrder = "desc", search, role } = req.query;
 
+  if (id) {
+    const role = await rolesModel.findById(id);
+
+    if (!role) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Role not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: role,
+      message: "Fetched successfully",
+    });
+  }
+
   // const sortField = req?.query?.sortBy || "role_name";
   // const sortDirection = req.query.sort === "desc" ? -1 : 1;
   const sort = {};

@@ -64,7 +64,7 @@ export const UpdateTrainer = catchAsync(async (req, res) => {
 
 export const ChangePasswordTrainer = catchAsync(async (req, res) => {
   const trainerId = req.params.id;
-  const { currentPassword, newPassword } = req.body;
+  const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(trainerId)) {
     return res.status(400).json({ status: false, message: "Invalid trainer ID.", data: null });
@@ -75,39 +75,28 @@ export const ChangePasswordTrainer = catchAsync(async (req, res) => {
     return res.status(404).json({ status: false, message: "Trainer not found", data: null });
   }
 
-  if (!newPassword || !currentPassword) {
+  if (!new_password || !confirm_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "Current Password and New Password both required.",
+      message: "Confirm Password and New Password both required.",
     });
   }
 
-  if (currentPassword == newPassword) {
+  if (confirm_password !== new_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "New password can't be same as Current password.",
+      message: "Confirm password is not same as New password.",
     });
   }
 
-  // Check if the current password matches
-  const isPasswordValid = await bcrypt.compare(currentPassword, trainer.password);
-
-  if (!isPasswordValid) {
-    return res.status(401).json({
-      status: false,
-      message: "Current password is incorrect.",
-      data: null,
-    });
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   trainer.password = hashedPassword;
-  const updatedUser = await trainer.save();
+  const updatedTrainer = await trainer.save();
   return res.status(200).json({
     status: true,
-    data: updatedUser,
+    data: updatedTrainer,
     message: "Password updated successfully.",
   });
 });
@@ -124,7 +113,26 @@ export const GetTrainer = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
+    id
   } = req.query;
+
+  if (id) {
+    const trainer = await trainerModel.findById(id);
+
+    if (!trainer) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Trainer not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: trainer,
+      message: "Fetched successfully",
+    });
+  }
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;

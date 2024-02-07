@@ -59,8 +59,9 @@ export const UpdateMember = catchAsync(async (req, res) => {
 });
 
 export const ChangePassword = catchAsync(async (req, res) => {
+  console.log('requesting change password',req.body);
   const memberId = req.params.id;
-  const { currentPassword, newPassword } = req.body;
+  const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(memberId)) {
     return res
@@ -75,34 +76,23 @@ export const ChangePassword = catchAsync(async (req, res) => {
       .json({ status: false, message: "Member not found", data: null });
   }
 
-  if (!newPassword || !currentPassword) {
+  if (!new_password || !confirm_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "Current Password and New Password both required.",
+      message: "Confirm Password and New Password both required.",
     });
   }
 
-  if (currentPassword == newPassword) {
+  if (confirm_password !== new_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "New password can't be same as Current password.",
+      message: "Confirm password is not same as New password.",
     });
   }
 
-  // Check if the current password matches
-  const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-
-  if (!isPasswordValid) {
-    return res.status(401).json({
-      status: false,
-      message: "Current password is incorrect.",
-      data: null,
-    });
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   user.password = hashedPassword;
   const updatedUser = await user.save();
   return res.status(200).json({
@@ -124,7 +114,26 @@ export const GetMember = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
+    id
   } = req.query;
+
+  if (id) {
+    const member = await memberModel.findById(id);
+
+    if (!member) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Member not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: member,
+      message: "Fetched successfully",
+    });
+  }
 
   // const sortField = req.query.sortField || "member_id";
   // const sortOrder = req.query.sortOrder || "asc";

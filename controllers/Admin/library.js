@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import libraryModel from "../../database/schema/library.schema.js";
 import ApiError from "../../Utils/ApiError.js";
+import { deleteImagesFromStorage } from "../../Utils/MulterFunction.js";
 
 export const AddLibrary = catchAsync(async (req, res) => {
   const data = req.body;
@@ -14,7 +15,8 @@ export const AddLibrary = catchAsync(async (req, res) => {
   // Check if files were uploaded
   const files = req.files;
   if (files && Object.keys(files).length > 0) {
-    if (files.banner_image) newBook.banner_image = files.banner_image[0].filename;
+    if (files.banner_image)
+      newBook.banner_image = files.banner_image[0].filename;
     if (files.images) {
       let allImages = files?.images.map((image) => image.filename);
       newBook.images = allImages;
@@ -36,7 +38,9 @@ export const UpdateLibrary = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(bookId)) {
-    return res.status(400).json({ status: false, message: "Invalid book ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid book ID", data: null });
   }
 
   if (files && Object.keys(files).length > 0) {
@@ -47,7 +51,11 @@ export const UpdateLibrary = catchAsync(async (req, res) => {
 
   // console.log(updateData);
 
-  const book = await libraryModel.findByIdAndUpdate(bookId, { $set: updateData }, { new: true, runValidators: true });
+  const book = await libraryModel.findByIdAndUpdate(
+    bookId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!book) {
     return res.status(404).json({
       status: false,
@@ -63,11 +71,37 @@ export const UpdateLibrary = catchAsync(async (req, res) => {
 });
 
 export const GetLibrary = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, library_start_date } = req.query;
+  const {
+    sortField = "created_at",
+    sortOrder = "desc",
+    search,
+    start_date,
+    end_date,
+    library_start_date,
+    id,
+  } = req.query;
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
+
+  if (id) {
+    const library = await libraryModel.findById(id);
+
+    if (!library) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Book not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: library,
+      message: "Fetched successfully",
+    });
+  }
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
@@ -84,7 +118,10 @@ export const GetLibrary = catchAsync(async (req, res) => {
         { author_name: searchRegex },
         ...(isNaN(parseInt(search))
           ? [] // If not a valid number, don't include duration and rate conditions
-          : [{ available_quantity: { $lte: parseInt(search) } }, { booked_quantity: { $lte: parseInt(search) } }]),
+          : [
+              { available_quantity: { $lte: parseInt(search) } },
+              { booked_quantity: { $lte: parseInt(search) } },
+            ]),
       ],
     };
   }
@@ -104,7 +141,6 @@ export const GetLibrary = catchAsync(async (req, res) => {
   //   let newEndDate = new Date(end_date).setHours(23, 59, 59);
   //   filter["created_at"] = { $lte: newEndDate };
   // }
-
 
   // Fetching library
   const library = await libraryModel
@@ -172,13 +208,23 @@ export const UpdateImages = catchAsync(async (req, res) => {
     let deletedImagesArray = JSON.parse(deletedImages);
 
     if (Array.isArray(deletedImagesArray) && deletedImagesArray.length > 0) {
-      if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0) {
+      if (
+        updateData.images &&
+        Array.isArray(updateData.images) &&
+        updateData.images.length > 0
+      ) {
         const deletedImagesSet = new Set(deletedImagesArray);
-        updateData.images = updateData.images.filter((image) => !deletedImagesSet.has(image));
-        if (!updateData?.images || updateData?.images.length == 0) updateData.images = null;
+        updateData.images = updateData.images.filter(
+          (image) => !deletedImagesSet.has(image)
+        );
+        if (!updateData?.images || updateData?.images.length == 0)
+          updateData.images = null;
 
         // Delete images from local storage
-        let deleteData = await deleteImagesFromStorage("uploads/library", deletedImagesArray);
+        let deleteData = await deleteImagesFromStorage(
+          "uploads/library",
+          deletedImagesArray
+        );
         console.log(deleteData);
       } else {
         return res.status(400).json({
@@ -193,7 +239,11 @@ export const UpdateImages = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   console.log(updateData);
 
-  const library = await libraryModel.findByIdAndUpdate(libraryId, { $set: updateData }, { new: true, runValidators: true });
+  const library = await libraryModel.findByIdAndUpdate(
+    libraryId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
 
   // if (!library) {
   //   return res.status(404).json({

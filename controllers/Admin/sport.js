@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import sportModel from "../../database/schema/sport.schema.js";
 import ApiError from "../../Utils/ApiError.js";
+import { deleteImagesFromStorage } from "../../Utils/MulterFunction.js";
 
 export const AddSport = catchAsync(async (req, res) => {
   const data = req.body;
@@ -81,8 +82,25 @@ export const UpdateSport = catchAsync(async (req, res) => {
 });
 
 export const GetSport = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, sport_start_date } = req.query;
+  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, sport_start_date, id } = req.query;
 
+  if (id) {
+    const sport = await sportModel.findById(id);
+
+    if (!sport) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Sport not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: sport,
+      message: "Fetched successfully",
+    });
+  }
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;

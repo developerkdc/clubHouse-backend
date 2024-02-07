@@ -64,7 +64,7 @@ export const UpdateNutritionist = catchAsync(async (req, res) => {
 
 export const ChangePasswordNutritionist = catchAsync(async (req, res) => {
   const nutritionistId = req.params.id;
-  const { currentPassword, newPassword } = req.body;
+  const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(nutritionistId)) {
     return res.status(400).json({ status: false, message: "Invalid nutritionist ID.", data: null });
@@ -75,34 +75,23 @@ export const ChangePasswordNutritionist = catchAsync(async (req, res) => {
     return res.status(404).json({ status: false, message: "Nutritionist not found", data: null });
   }
 
-  if (!newPassword || !currentPassword) {
+  if (!new_password || !confirm_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "Current Password and New Password both required.",
+      message: "Confirm Password and New Password both required.",
     });
   }
 
-  if (currentPassword == newPassword) {
+  if (confirm_password !== new_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "New password can't be same as Current password.",
+      message: "Confirm password is not same as New password.",
     });
   }
 
-  // Check if the current password matches
-  const isPasswordValid = await bcrypt.compare(currentPassword, nutritionist.password);
-
-  if (!isPasswordValid) {
-    return res.status(401).json({
-      status: false,
-      message: "Current password is incorrect.",
-      data: null,
-    });
-  }
-
-  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   nutritionist.password = hashedPassword;
   const updatedUser = await nutritionist.save();
   return res.status(200).json({
@@ -124,7 +113,26 @@ export const GetNutritionist = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
+    id
   } = req.query;
+
+  if (id) {
+    const nutritionist = await nutritionistModel.findById(id);
+
+    if (!nutritionist) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Resource not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: nutritionist,
+      message: "Fetched successfully",
+    });
+  }
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;

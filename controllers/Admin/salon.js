@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import salonModel from "../../database/schema/salon.schema.js";
 import ApiError from "../../Utils/ApiError.js";
+import { deleteImagesFromStorage } from "../../Utils/MulterFunction.js";
 
 export const AddSalon = catchAsync(async (req, res) => {
   const data = req.body;
@@ -81,11 +82,29 @@ export const UpdateSalon = catchAsync(async (req, res) => {
 });
 
 export const GetSalon = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, salon_start_date } = req.query;
+  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, salon_start_date, id} = req.query;
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
+
+  if (id) {
+    const salon = await salonModel.findById(id);
+
+    if (!salon) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Salon not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: salon,
+      message: "Fetched successfully",
+    });
+  }
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;

@@ -64,11 +64,11 @@ export const ChangePassword = catchAsync(async (req, res) => {
     return res.status(404).json({ status: false, message: "User not found", data: null });
   }
 
-  if (!new_password) {
+  if (!new_password || !confirm_password) {
     return res.status(400).json({
       status: false,
       data: null,
-      message: "New Password is required.",
+      message: "Confirm Password and New Password both required.",
     });
   }
 
@@ -79,17 +79,7 @@ export const ChangePassword = catchAsync(async (req, res) => {
       message: "Confirm password is not same as New password.",
     });
   }
-
-  // Check if the current password matches
-  // const isPasswordValid = await bcrypt.compare(newPassword, user.password);
-
-  // if (!isPasswordValid) {
-  //   return res.status(401).json({
-  //     status: false,
-  //     message: "Current password is incorrect.",
-  //     data: null,
-  //   });
-  // }
+  
   const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   user.password = hashedPassword;
   const updatedUser = await user.save();
@@ -105,9 +95,26 @@ export const GetUsers = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const { sortField = "user_id", sortOrder = "desc", search, role, start_date, end_date } = req.query;
+  const { sortField = "user_id", sortOrder = "desc", search, role, start_date, end_date,id } = req.query;
   // const sortField = req.query.sortField || "user_id";
   // const sortOrder = req.query.sortOrder || "asc";
+  if (id) {
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: user,
+      message: "Fetched successfully",
+    });
+  }
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 

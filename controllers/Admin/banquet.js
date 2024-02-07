@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import banquetModel from "../../database/schema/banquet.schema.js";
 import ApiError from "../../Utils/ApiError.js";
+import { deleteImagesFromStorage } from "../../Utils/MulterFunction.js";
 
 export const AddBanquet = catchAsync(async (req, res) => {
   const data = req.body;
@@ -17,7 +18,8 @@ export const AddBanquet = catchAsync(async (req, res) => {
   // Check if files were uploaded
   const files = req.files;
   if (files && Object.keys(files).length > 0) {
-    if (files.banner_image) newBanquet.banner_image = files.banner_image[0].filename;
+    if (files.banner_image)
+      newBanquet.banner_image = files.banner_image[0].filename;
     if (files.images) {
       let allImages = files?.images.map((image) => image.filename);
       newBanquet.images = allImages;
@@ -43,7 +45,9 @@ export const UpdateBanquet = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(banquetId)) {
-    return res.status(400).json({ status: false, message: "Invalid banquet ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid banquet ID", data: null });
   }
 
   if (files && Object.keys(files).length > 0) {
@@ -65,7 +69,11 @@ export const UpdateBanquet = catchAsync(async (req, res) => {
 
   // console.log(updateData);
 
-  const banquet = await banquetModel.findByIdAndUpdate(banquetId, { $set: updateData }, { new: true, runValidators: true });
+  const banquet = await banquetModel.findByIdAndUpdate(
+    banquetId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!banquet) {
     return res.status(404).json({
       status: false,
@@ -81,7 +89,33 @@ export const UpdateBanquet = catchAsync(async (req, res) => {
 });
 
 export const GetBanquet = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, banquet_start_date } = req.query;
+  const {
+    sortField = "created_at",
+    sortOrder = "desc",
+    search,
+    start_date,
+    end_date,
+    banquet_start_date,
+    id,
+  } = req.query;
+
+  if (id) {
+    const banquet = await banquetModel.findById(id);
+
+    if (!banquet) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Banquet not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: banquet,
+      message: "Fetched successfully",
+    });
+  }
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -101,7 +135,10 @@ export const GetBanquet = catchAsync(async (req, res) => {
         { location: searchRegex },
         ...(isNaN(parseInt(search))
           ? [] // If not a valid number, don't include duration and rate conditions
-          : [{ capacity: { $lte: parseInt(search) } }, { rate: { $lte: parseInt(search) } }]),
+          : [
+              { capacity: { $lte: parseInt(search) } },
+              { rate: { $lte: parseInt(search) } },
+            ]),
       ],
     };
   }
@@ -190,13 +227,23 @@ export const UpdateImages = catchAsync(async (req, res) => {
     let deletedImagesArray = JSON.parse(deletedImages);
 
     if (Array.isArray(deletedImagesArray) && deletedImagesArray.length > 0) {
-      if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0) {
+      if (
+        updateData.images &&
+        Array.isArray(updateData.images) &&
+        updateData.images.length > 0
+      ) {
         const deletedImagesSet = new Set(deletedImagesArray);
-        updateData.images = updateData.images.filter((image) => !deletedImagesSet.has(image));
-        if (!updateData?.images || updateData?.images.length == 0) updateData.images = null;
+        updateData.images = updateData.images.filter(
+          (image) => !deletedImagesSet.has(image)
+        );
+        if (!updateData?.images || updateData?.images.length == 0)
+          updateData.images = null;
 
         // Delete images from local storage
-        let deleteData = await deleteImagesFromStorage("uploads/banquet", deletedImagesArray);
+        let deleteData = await deleteImagesFromStorage(
+          "uploads/banquet",
+          deletedImagesArray
+        );
         console.log(deleteData);
       } else {
         return res.status(400).json({
@@ -211,7 +258,11 @@ export const UpdateImages = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   console.log(updateData);
 
-  const banquet = await banquetModel.findByIdAndUpdate(banquetId, { $set: updateData }, { new: true, runValidators: true });
+  const banquet = await banquetModel.findByIdAndUpdate(
+    banquetId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
 
   // if (!banquet) {
   //   return res.status(404).json({

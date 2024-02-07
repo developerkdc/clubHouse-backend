@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import spaModel from "../../database/schema/spa.schema.js";
 import ApiError from "../../Utils/ApiError.js";
+import { deleteImagesFromStorage } from "../../Utils/MulterFunction.js";
 
 export const AddSpa = catchAsync(async (req, res) => {
   const data = req.body;
@@ -68,7 +69,25 @@ export const UpdateSpa = catchAsync(async (req, res) => {
 });
 
 export const GetSpa = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, spa_start_date } = req.query;
+  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, spa_start_date, id } = req.query;
+
+  if (id) {
+    const spa = await spaModel.findById(id);
+
+    if (!spa) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Spa not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: spa,
+      message: "Fetched successfully",
+    });
+  }
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;

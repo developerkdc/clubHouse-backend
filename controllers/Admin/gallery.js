@@ -14,7 +14,8 @@ export const AddGallery = catchAsync(async (req, res) => {
 
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
-    if (files.banner_image) newGallery.banner_image = files.banner_image[0].filename;
+    if (files.banner_image)
+      newGallery.banner_image = files.banner_image[0].filename;
     if (files.images) {
       let allImages = files?.images.map((image) => image.filename);
       newGallery.images = allImages;
@@ -40,7 +41,9 @@ export const UpdateGallery = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(galleryId)) {
-    return res.status(400).json({ status: false, message: "Invalid album ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid album ID", data: null });
   }
 
   if (files && Object.keys(files).length > 0) {
@@ -49,7 +52,11 @@ export const UpdateGallery = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   // console.log(updateData);
 
-  const gallery = await galleryModel.findByIdAndUpdate(galleryId, { $set: updateData }, { new: true, runValidators: true });
+  const gallery = await galleryModel.findByIdAndUpdate(
+    galleryId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!gallery) {
     return res.status(404).json({
       status: false,
@@ -69,7 +76,33 @@ export const GetGallery = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date,event_date} = req.query;
+  const {
+    sortField = "created_at",
+    sortOrder = "desc",
+    search,
+    start_date,
+    end_date,
+    event_date,
+    id,
+  } = req.query;
+
+  if (id) {
+    const gallery = await galleryModel.findById(id);
+
+    if (!gallery) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Album not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: gallery,
+      message: "Fetched successfully",
+    });
+  }
 
   const sort = {};
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
@@ -103,7 +136,6 @@ export const GetGallery = catchAsync(async (req, res) => {
     let newEventDate = new Date(event_date).setHours(0, 0, 1);
     filter["event_date"] = { $gte: newEventDate };
   }
-
 
   // Fetching gallery
   const gallery = await galleryModel
@@ -281,13 +313,23 @@ export const UpdateImages = catchAsync(async (req, res) => {
     let deletedImagesArray = JSON.parse(deletedImages);
 
     if (Array.isArray(deletedImagesArray) && deletedImagesArray.length > 0) {
-      if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0) {
+      if (
+        updateData.images &&
+        Array.isArray(updateData.images) &&
+        updateData.images.length > 0
+      ) {
         const deletedImagesSet = new Set(deletedImagesArray);
-        updateData.images = updateData.images.filter((image) => !deletedImagesSet.has(image));
-        if (!updateData?.images || updateData?.images.length == 0) updateData.images = null;
-        
+        updateData.images = updateData.images.filter(
+          (image) => !deletedImagesSet.has(image)
+        );
+        if (!updateData?.images || updateData?.images.length == 0)
+          updateData.images = null;
+
         // Delete images from local storage
-        let deleteData = await deleteImagesFromStorage("uploads/gallery", deletedImagesArray);
+        let deleteData = await deleteImagesFromStorage(
+          "uploads/gallery",
+          deletedImagesArray
+        );
         console.log(deleteData);
       } else {
         return res.status(400).json({
@@ -302,7 +344,11 @@ export const UpdateImages = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   console.log(updateData);
 
-  const gallery = await galleryModel.findByIdAndUpdate(galleryId, { $set: updateData }, { new: true, runValidators: true });
+  const gallery = await galleryModel.findByIdAndUpdate(
+    galleryId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
 
   // if (!gallery) {
   //   return res.status(404).json({
