@@ -19,7 +19,7 @@ export const GetRoles = catchAsync(async (req, res, next) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const { sortField = "role_name", sortOrder = "desc", search, role } = req.query;
+  const { sortField = "role_name", sortOrder = "desc", search, role,id } = req.query;
 
   if (id) {
     const role = await rolesModel.findById(id);
