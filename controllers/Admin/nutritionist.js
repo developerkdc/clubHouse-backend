@@ -5,18 +5,25 @@ import bcrypt from "bcrypt";
 import ApiError from "../../Utils/ApiError.js";
 
 export const AddNutritionist = catchAsync(async (req, res, next) => {
-  const nutritionistData = req.body;
+  const data = req.body;
   const saltRounds = 10;
-  console.log(nutritionistData);
+  data.profile_image=null;
+  data.language = nutritionistData.language ? JSON.parse(nutritionistData.language) : null;
 
-  nutritionistData.language = nutritionistData.language ? JSON.parse(nutritionistData.language) : null;
+  const nutritionistData = new nutritionistModel(data);
 
-  if (!nutritionistData.password) {
+  if (!data.password) {
     return next(new ApiError("Password is required", 404));
   }
-  nutritionistData.password = await bcrypt.hash(nutritionistData.password, saltRounds);
+  nutritionistData.password = await bcrypt.hash(data.password, saltRounds);
 
-  const savedNutritionist = await nutritionistModel.create(nutritionistData);
+  // Check if files were uploaded
+  if (files && Object.keys(files).length > 0) {
+    if (files.profile_image)
+    nutritionistData.profile_image = files.profile_image[0].filename;
+  }
+
+  const savedNutritionist = await nutritionistData.save();
 
   // Send a success response
   return res.status(201).json({

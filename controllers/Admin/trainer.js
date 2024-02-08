@@ -5,16 +5,23 @@ import bcrypt from "bcrypt";
 import ApiError from "../../Utils/ApiError.js";
 
 export const AddTrainer = catchAsync(async (req, res, next) => {
-  const trainerData = req.body;
+  const data = req.body;
   const saltRounds = 10;
-  console.log(trainerData);
+  data.profile_image = null;
+  data.language = data.language ? JSON.parse(data.language) : null;
 
-  trainerData.language = trainerData.language ? JSON.parse(trainerData.language) : null;
+  const trainerData = new trainerModel(data);
 
-  if (!trainerData.password) {
+  if (!data.password) {
     return next(new ApiError("Password is required", 404));
   }
-  trainerData.password = await bcrypt.hash(trainerData.password, saltRounds);
+  trainerData.password = await bcrypt.hash(data.password, saltRounds);
+
+  // Check if files were uploaded
+  if (files && Object.keys(files).length > 0) {
+    if (files.profile_image)
+    trainerData.profile_image = files.profile_image[0].filename;
+  }
 
   const savedTrainer = await trainerModel.create(trainerData);
 
@@ -31,7 +38,9 @@ export const UpdateTrainer = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(trainerId)) {
-    return res.status(400).json({ status: false, message: "Invalid trainer ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid trainer ID", data: null });
   }
 
   if (updateData.password) {
@@ -39,14 +48,19 @@ export const UpdateTrainer = catchAsync(async (req, res) => {
     updateData.password = hashedPassword;
   }
 
-  if (updateData.language) updateData.language = JSON.parse(updateData.language);
+  if (updateData.language)
+    updateData.language = JSON.parse(updateData.language);
   updateData.updated_at = Date.now();
 
   if (files && Object.keys(files).length > 0) {
     updateData.profile_image = files.profile_image[0].filename;
   }
 
-  const trainer = await trainerModel.findByIdAndUpdate(trainerId, { $set: updateData }, { new: true, runValidators: true });
+  const trainer = await trainerModel.findByIdAndUpdate(
+    trainerId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!trainer) {
     return res.status(404).json({
       status: false,
@@ -67,12 +81,16 @@ export const ChangePasswordTrainer = catchAsync(async (req, res) => {
   const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(trainerId)) {
-    return res.status(400).json({ status: false, message: "Invalid trainer ID.", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid trainer ID.", data: null });
   }
 
   const trainer = await trainerModel.findById(trainerId);
   if (!trainer) {
-    return res.status(404).json({ status: false, message: "Trainer not found", data: null });
+    return res
+      .status(404)
+      .json({ status: false, message: "Trainer not found", data: null });
   }
 
   if (!new_password || !confirm_password) {
@@ -113,7 +131,7 @@ export const GetTrainer = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
-    id
+    id,
   } = req.query;
 
   if (id) {
@@ -151,7 +169,7 @@ export const GetTrainer = catchAsync(async (req, res) => {
         { mobile_no: searchRegex },
         ...(isNaN(parseInt(search))
           ? [] // If not a valid number, don't include memebr_id conditions
-          : [{ experience: parseInt(search) },{ age: parseInt(search) }]),
+          : [{ experience: parseInt(search) }, { age: parseInt(search) }]),
       ],
     };
   }
