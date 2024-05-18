@@ -48,7 +48,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use(express.json());
 var corsOptions = {
-  origin: ["http://localhost:3001","https://clubhouse.kdcstaging.in"],
+  origin: ["http://localhost:3001","https://clubhouse.kdcstaging.in","http://localhost:3000"],
   optionsSuccessStatus: 200,
   credentials: true,
 }

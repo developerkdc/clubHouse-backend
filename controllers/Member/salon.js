@@ -46,7 +46,7 @@ export const GetSalon = catchAsync(async (req, res) => {
     status: true,
     data: salon,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 

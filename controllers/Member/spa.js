@@ -46,7 +46,7 @@ export const GetSpa = catchAsync(async (req, res) => {
     status: true,
     data: spa,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 

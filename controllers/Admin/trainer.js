@@ -207,6 +207,6 @@ export const GetTrainer = catchAsync(async (req, res) => {
     status: true,
     data: trainers,
     message: "Trainers List.",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });

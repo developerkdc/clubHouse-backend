@@ -69,7 +69,7 @@ export const GetRoles = catchAsync(async (req, res, next) => {
   return res.status(200).json({
     status: true,
     data: roles,
-    totalPages: totalPages,
+    totalPages: totalRoles,
     message: "All Roles and Permissions",
   });
 });

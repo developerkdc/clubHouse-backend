@@ -174,6 +174,6 @@ export const GetUsers = catchAsync(async (req, res) => {
     status: true,
     data: users,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });

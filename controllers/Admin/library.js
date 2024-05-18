@@ -160,7 +160,7 @@ export const GetLibrary = catchAsync(async (req, res) => {
     status: true,
     data: library,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 

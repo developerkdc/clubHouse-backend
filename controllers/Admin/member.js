@@ -192,6 +192,6 @@ export const GetMember = catchAsync(async (req, res) => {
     status: true,
     data: members,
     message: "Members List.",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });

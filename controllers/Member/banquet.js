@@ -41,12 +41,12 @@ export const GetBanquet = catchAsync(async (req, res) => {
     ...searchQuery,
   });
   const totalPages = Math.ceil(totalDocuments / limit);
-
+console.log(totalDocuments,"totalDocumentstotalDocuments")
   return res.status(200).json({
     status: true,
     data: banquet,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 

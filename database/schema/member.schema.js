@@ -20,7 +20,7 @@ const FamilyMemberSchema = new mongoose.Schema({
 
 const MemberSchema = new mongoose.Schema({
   member_id: {
-    type: Number,
+    type: String,
     required: [true, "Member ID required."],
     indexedDB: true,
     trim: true,

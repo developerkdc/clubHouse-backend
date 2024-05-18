@@ -141,6 +141,6 @@ export const GetNews = catchAsync(async (req, res) => {
     status: true,
     data: news,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });

@@ -174,7 +174,7 @@ export const GetEvent = catchAsync(async (req, res) => {
     status: true,
     data: event,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 
