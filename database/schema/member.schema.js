@@ -39,6 +39,31 @@ const FamilyMemberSchema = new mongoose.Schema({
     required: [true, "Relation with member is required."],
     trim: true,
   },
+  address: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  city: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  state: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  pincode: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  profile_picture: {
+    type: String,
+    trim: true,
+    default: null,
+  },
 });
 
 const MemberSchema = new mongoose.Schema({
@@ -88,6 +113,31 @@ const MemberSchema = new mongoose.Schema({
     minlength: 10,
     maxlength: 10,
     unique: [true, "Mobile Number already exist."],
+    trim: true,
+    default: null,
+  },
+  address: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  city: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  state: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  pincode: {
+    type: String,
+    trim: true,
+    default: null,
+  },
+  profile_picture: {
+    type: String,
     trim: true,
     default: null,
   },
