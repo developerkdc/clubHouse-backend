@@ -50,6 +50,6 @@ export const GetEvent = catchAsync(async (req, res) => {
     status: true,
     data: event,
     message: "Fetched successfully",
-    totalPages: totalDocuments,
+    totalPages: totalPages,
   });
 });

@@ -161,7 +161,7 @@ export const GetSport = catchAsync(async (req, res) => {
     status: true,
     data: sport,
     message: "Fetched successfully",
-    totalPages: totalDocuments,
+    totalPages: totalPages,
   });
 });
 

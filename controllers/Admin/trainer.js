@@ -9,7 +9,7 @@ export const AddTrainer = catchAsync(async (req, res, next) => {
   const saltRounds = 10;
   data.profile_image = null;
   data.language = data.language ? JSON.parse(data.language) : null;
-
+const files=req?.files
   const trainerData = new trainerModel(data);
 
   if (!data.password) {
@@ -207,6 +207,6 @@ export const GetTrainer = catchAsync(async (req, res) => {
     status: true,
     data: trainers,
     message: "Trainers List.",
-    totalPages: totalDocuments,
+    totalPages: totalPages,
   });
 });

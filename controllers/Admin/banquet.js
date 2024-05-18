@@ -179,7 +179,7 @@ export const GetBanquet = catchAsync(async (req, res) => {
     status: true,
     data: banquet,
     message: "Fetched successfully",
-    totalPages: totalDocuments,
+    totalPages: totalPages,
   });
 });
 

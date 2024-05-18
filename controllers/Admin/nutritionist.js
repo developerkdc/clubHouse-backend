@@ -7,20 +7,22 @@ import ApiError from "../../Utils/ApiError.js";
 export const AddNutritionist = catchAsync(async (req, res, next) => {
   const data = req.body;
   const saltRounds = 10;
-  data.profile_image=null;
-  data.language = nutritionistData.language ? JSON.parse(nutritionistData.language) : null;
-
+  data.profile_image = null;
   const nutritionistData = new nutritionistModel(data);
+  data.language = nutritionistData.language
+    ? JSON.parse(nutritionistData.language)
+    : null;
 
   if (!data.password) {
     return next(new ApiError("Password is required", 404));
   }
   nutritionistData.password = await bcrypt.hash(data.password, saltRounds);
-
+  const files = req?.files;
+  console.log(files,"fffffffffffffff")
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
     if (files.profile_image)
-    nutritionistData.profile_image = files.profile_image[0].filename;
+      nutritionistData.profile_image = files.profile_image[0].filename;
   }
 
   const savedNutritionist = await nutritionistData.save();
@@ -38,7 +40,9 @@ export const UpdateNutritionist = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(nutritionistId)) {
-    return res.status(400).json({ status: false, message: "Invalid nutritionist ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid nutritionist ID", data: null });
   }
 
   if (updateData.password) {
@@ -46,14 +50,19 @@ export const UpdateNutritionist = catchAsync(async (req, res) => {
     updateData.password = hashedPassword;
   }
 
-  if (updateData.language) updateData.language = JSON.parse(updateData.language);
+  if (updateData.language)
+    updateData.language = JSON.parse(updateData.language);
   updateData.updated_at = Date.now();
 
   if (files && Object.keys(files).length > 0) {
     updateData.profile_image = files.profile_image[0].filename;
   }
 
-  const nutritionist = await nutritionistModel.findByIdAndUpdate(nutritionistId, { $set: updateData }, { new: true, runValidators: true });
+  const nutritionist = await nutritionistModel.findByIdAndUpdate(
+    nutritionistId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!nutritionist) {
     return res.status(404).json({
       status: false,
@@ -74,12 +83,16 @@ export const ChangePasswordNutritionist = catchAsync(async (req, res) => {
   const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(nutritionistId)) {
-    return res.status(400).json({ status: false, message: "Invalid nutritionist ID.", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid nutritionist ID.", data: null });
   }
 
   const nutritionist = await nutritionistModel.findById(nutritionistId);
   if (!nutritionist) {
-    return res.status(404).json({ status: false, message: "Nutritionist not found", data: null });
+    return res
+      .status(404)
+      .json({ status: false, message: "Nutritionist not found", data: null });
   }
 
   if (!new_password || !confirm_password) {
@@ -120,7 +133,7 @@ export const GetNutritionist = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
-    id
+    id,
   } = req.query;
 
   if (id) {
@@ -158,7 +171,7 @@ export const GetNutritionist = catchAsync(async (req, res) => {
         { mobile_no: searchRegex },
         ...(isNaN(parseInt(search))
           ? [] // If not a valid number, don't include experience conditions
-          : [{ experience: parseInt(search) },{ age: parseInt(search) }]),
+          : [{ experience: parseInt(search) }, { age: parseInt(search) }]),
       ],
     };
   }
@@ -196,6 +209,6 @@ export const GetNutritionist = catchAsync(async (req, res) => {
     status: true,
     data: nutritionists,
     message: "Nutritionists List.",
-    totalPages: totalDocuments,
+    totalPages: totalPages,
   });
 });
