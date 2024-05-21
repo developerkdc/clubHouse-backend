@@ -4,6 +4,7 @@ import { promises as fsPromises } from "fs";
 import { join } from "path";
 
 export const MulterFunction = (dist) => {
+  console.log('ddddddddd');
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       if (!fs.existsSync(dist)) {

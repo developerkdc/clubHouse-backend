@@ -18,7 +18,7 @@ const SportSchema = new mongoose.Schema({
   videos: [{ type: String, minlength: 2, maxlength: 250, default: null }],
   rate: { type: Number, min: 10, indexedDB: true, trim: true, default: null },
   amenities: [{ type: String, minlength: 2, maxlength: 250, default: null }],
-  terms_condition: { type: String, trim: true, default: null },
+  // terms_condition: { type: String, trim: true, default: null },
   status: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

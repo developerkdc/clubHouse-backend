@@ -59,7 +59,7 @@ const FamilyMemberSchema = new mongoose.Schema({
     trim: true,
     default: null,
   },
-  profile_picture: {
+  profile_image: {
     type: String,
     trim: true,
     default: null,
@@ -136,7 +136,7 @@ const MemberSchema = new mongoose.Schema({
     trim: true,
     default: null,
   },
-  profile_picture: {
+  profile_image: {
     type: String,
     trim: true,
     default: null,
@@ -163,5 +163,5 @@ MemberSchema.methods.jwtToken = function (next) {
   }
 };
 
-const memberModel = mongoose.model("member", MemberSchema);
+const   memberModel = mongoose.model("member", MemberSchema);
 export default memberModel;

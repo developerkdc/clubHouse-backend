@@ -1,5 +1,5 @@
 import express from "express";
-import { AddEvent, GetEvent, UpdateEvent, UpdateImages } from "../../controllers/Admin/event.js";
+import { AddEvent, DropdownEventMaster, GetEvent, UpdateEvent, UpdateImages } from "../../controllers/Admin/event.js";
 
 import authMiddleware from "../../middleware/adminAuth.js";
 import rolesPermissions from "../../middleware/rolesPermissionAuth.js";
@@ -33,4 +33,6 @@ router.post(
   UpdateImages
 );
 
+//dropdown list
+router.get("/dropdown-list", authMiddleware, rolesPermissions("event", "view"), DropdownEventMaster);
 export default router;

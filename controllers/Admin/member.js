@@ -7,6 +7,12 @@ import ApiError from "../../Utils/ApiError.js";
 export const AddMember = catchAsync(async (req, res, next) => {
   const memberData = req.body;
   const saltRounds = 10;
+  const files = req.files;
+  console.log(files);
+  // Check if files were uploaded
+  if (files && Object.keys(files).length > 0) {
+    memberData.profile_image = files.profile_image[0].filename;
+  }
 
   if (!memberData.password) {
     return next(new ApiError("Password is required", 404));
@@ -26,6 +32,14 @@ export const AddMember = catchAsync(async (req, res, next) => {
 export const UpdateMember = catchAsync(async (req, res) => {
   const memberId = req.params.id;
   const updateData = req.body;
+
+  const files = req.files;
+  console.log(files);
+  // Check if files were uploaded
+  if (files && Object.keys(files).length > 0) {
+    updateData.profile_image = files.profile_image[0].filename;
+  }
+
   if (!mongoose.Types.ObjectId.isValid(memberId)) {
     return res
       .status(400)
@@ -59,7 +73,7 @@ export const UpdateMember = catchAsync(async (req, res) => {
 });
 
 export const ChangePassword = catchAsync(async (req, res) => {
-  console.log('requesting change password',req.body);
+  console.log("requesting change password", req.body);
   const memberId = req.params.id;
   const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
@@ -114,7 +128,7 @@ export const GetMember = catchAsync(async (req, res) => {
     // status,
     start_date,
     end_date,
-    id
+    id,
   } = req.query;
 
   if (id) {
@@ -153,8 +167,8 @@ export const GetMember = catchAsync(async (req, res) => {
         { email_id: searchRegex },
         { mobile_no: searchRegex },
         ...(isNaN(parseInt(search))
-        ? [] // If not a valid number, don't include memebr_id conditions
-        : [{ member_id: parseInt(search) }]),
+          ? [] // If not a valid number, don't include memebr_id conditions
+          : [{ member_id: parseInt(search) }]),
       ],
     };
   }

@@ -14,7 +14,8 @@ export const AddEvent = catchAsync(async (req, res) => {
   console.log(data);
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
-    if (files.banner_image) newEvent.banner_image = files.banner_image[0].filename;
+    if (files.banner_image)
+      newEvent.banner_image = files.banner_image[0].filename;
     if (files.images) {
       let allImages = files?.images.map((image) => image.filename);
       newEvent.images = allImages;
@@ -57,7 +58,9 @@ export const UpdateEvent = catchAsync(async (req, res) => {
   const updateData = req.body;
   const files = req.files;
   if (!mongoose.Types.ObjectId.isValid(eventId)) {
-    return res.status(400).json({ status: false, message: "Invalid event ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid event ID", data: null });
   }
 
   if (files && Object.keys(files).length > 0) {
@@ -81,7 +84,11 @@ export const UpdateEvent = catchAsync(async (req, res) => {
   }
   // console.log(updateData);
 
-  const event = await eventModel.findByIdAndUpdate(eventId, { $set: updateData }, { new: true, runValidators: true });
+  const event = await eventModel.findByIdAndUpdate(
+    eventId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!event) {
     return res.status(404).json({
       status: false,
@@ -97,7 +104,16 @@ export const UpdateEvent = catchAsync(async (req, res) => {
 });
 
 export const GetEvent = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, event_start_date, id} = req.query;
+  const {
+    sortField = "created_at",
+    sortOrder = "desc",
+    search,
+    start_date,
+    end_date,
+    event_start_date,
+    title,
+    id,
+  } = req.query;
 
   if (id) {
     const event = await eventModel.findById(id);
@@ -130,7 +146,13 @@ export const GetEvent = catchAsync(async (req, res) => {
     const searchRegex = new RegExp(".*" + search + ".*", "i");
     searchQuery = {
       ...searchQuery,
-      $or: [{ category: searchRegex }, { title: searchRegex }, { event_type: searchRegex }, { duration_type: searchRegex }, { source: searchRegex }],
+      $or: [
+        { category: searchRegex },
+        { title: searchRegex },
+        { event_type: searchRegex },
+        { duration_type: searchRegex },
+        { source: searchRegex },
+      ],
     };
   }
 
@@ -153,6 +175,10 @@ export const GetEvent = catchAsync(async (req, res) => {
   if (event_start_date) {
     let newEventStartDate = new Date(event_start_date);
     filter["start_date"] = { $gte: newEventStartDate };
+  }
+
+  if (title) {
+    filter["title"] = title;
   }
   // console.log(filter);
 
@@ -221,14 +247,24 @@ export const UpdateImages = catchAsync(async (req, res) => {
     let deletedImagesArray = JSON.parse(deletedImages);
 
     if (Array.isArray(deletedImagesArray) && deletedImagesArray.length > 0) {
-      if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0) {
+      if (
+        updateData.images &&
+        Array.isArray(updateData.images) &&
+        updateData.images.length > 0
+      ) {
         const deletedImagesSet = new Set(deletedImagesArray);
-        updateData.images = updateData.images.filter((image) => !deletedImagesSet.has(image));
+        updateData.images = updateData.images.filter(
+          (image) => !deletedImagesSet.has(image)
+        );
 
-        if (!updateData?.images || updateData?.images.length == 0) updateData.images = null;
+        if (!updateData?.images || updateData?.images.length == 0)
+          updateData.images = null;
 
         // Delete images from local storage
-        let deleteData = await deleteImagesFromStorage("uploads/event", deletedImagesArray);
+        let deleteData = await deleteImagesFromStorage(
+          "uploads/event",
+          deletedImagesArray
+        );
         console.log(deleteData);
       } else {
         return res.status(400).json({
@@ -243,7 +279,11 @@ export const UpdateImages = catchAsync(async (req, res) => {
   updateData.updated_at = Date.now();
   console.log(updateData);
 
-  const event = await eventModel.findByIdAndUpdate(eventId, { $set: updateData }, { new: true, runValidators: true });
+  const event = await eventModel.findByIdAndUpdate(
+    eventId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
 
   // if (!event) {
   //   return res.status(404).json({
@@ -256,5 +296,21 @@ export const UpdateImages = catchAsync(async (req, res) => {
     status: true,
     data: event,
     message: "Updated successfully",
+  });
+});
+
+//dropdown list events
+export const DropdownEventMaster = catchAsync(async (req, res) => {
+  const list = await eventModel.aggregate([
+    {
+      $project: {
+        title: 1,
+      },
+    },
+  ]);
+  res.status(200).json({
+    result: list,
+    status: true,
+    message: "Roles Dropdown List",
   });
 });

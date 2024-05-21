@@ -15,7 +15,7 @@ const GallerySchema = new mongoose.Schema({
   banner_image: { type: String, minlength: 1, trim: true, default:null  },
   images :[{type:String,minlength: 2, maxlength: 250, trim: true,default:null}],
   videos :[{type:String,minlength: 2, maxlength: 250, trim: true,default:null}],
-  source: { type: String, minlength: 1, trim: true, trim: true, default:null  },
+  // source: { type: String, minlength: 1, trim: true, trim: true, default:null  },
   status: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
