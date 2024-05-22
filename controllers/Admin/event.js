@@ -311,6 +311,6 @@ export const DropdownEventMaster = catchAsync(async (req, res) => {
   res.status(200).json({
     result: list,
     status: true,
-    message: "Roles Dropdown List",
+    message: "Events Dropdown List",
   });
 });

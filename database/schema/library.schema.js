@@ -15,7 +15,13 @@ const LibrarySchema = new mongoose.Schema({
     trim: true,
     indexedDB: true,
   },
-  author_name: { type: String, minlength: 1, indexedDB: true, trim: true, default: null },
+  author_name: {
+    type: String,
+    minlength: 1,
+    indexedDB: true,
+    trim: true,
+    default: null,
+  },
   banner_image: { type: String, minlength: 1, default: null },
   images: [{ type: String, minlength: 2, maxlength: 250, default: null }],
   book_summary: { type: String, minlength: 1, default: null },
@@ -23,6 +29,27 @@ const LibrarySchema = new mongoose.Schema({
   total_quantity: { type: Number, default: 0 },
   booked_quantity: { type: Number, default: 0 },
   issued_quantity: { type: Number, default: 0 },
+  issued_members: [
+    {
+      member_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, "Member is Required"],
+        ref: "member",
+      },
+      issued_date: {
+        type: Date,
+        default: () => new Date().setUTCHours(0, 0, 0, 0),
+      },
+      returned_date: {
+        type: Date,
+        default: () => new Date().setUTCHours(0, 0, 0, 0),
+      },
+      status: {
+        type: String,
+        enum: ["returned", "not_returned"],
+      },
+    },
+  ],
   available_quantity: { type: Number, default: 0, indexedDB: true },
   status: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now },

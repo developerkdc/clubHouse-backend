@@ -6,19 +6,20 @@ import ApiError from "../../Utils/ApiError.js";
 
 export const AddNutritionist = catchAsync(async (req, res, next) => {
   const data = req.body;
+  console.log(data, "datadatadatadata");
   const saltRounds = 10;
   data.profile_image = null;
+  data.language = data.language ? JSON.parse(data.language) : null;
+  data.nutritionist_available = data.nutritionist_available
+    ? JSON.parse(data.nutritionist_available)
+    : {};
+  // if (!data.password) {
+  //   return next(new ApiError("Password is required", 404));
+  // }
+  // nutritionistData.password = await bcrypt.hash(data.password, saltRounds);
   const nutritionistData = new nutritionistModel(data);
-  data.language = nutritionistData.language
-    ? JSON.parse(nutritionistData.language)
-    : null;
-
-  if (!data.password) {
-    return next(new ApiError("Password is required", 404));
-  }
-  nutritionistData.password = await bcrypt.hash(data.password, saltRounds);
   const files = req?.files;
-  console.log(files,"fffffffffffffff")
+  console.log(files, "fffffffffffffff");
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
     if (files.profile_image)
@@ -52,6 +53,11 @@ export const UpdateNutritionist = catchAsync(async (req, res) => {
 
   if (updateData.language)
     updateData.language = JSON.parse(updateData.language);
+  if (updateData.nutritionist_available) {
+    updateData.nutritionist_available = JSON.parse(
+      updateData.nutritionist_available
+    );
+  }
   updateData.updated_at = Date.now();
 
   if (files && Object.keys(files).length > 0) {

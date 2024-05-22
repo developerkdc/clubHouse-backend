@@ -9,18 +9,21 @@ export const AddTrainer = catchAsync(async (req, res, next) => {
   const saltRounds = 10;
   data.profile_image = null;
   data.language = data.language ? JSON.parse(data.language) : null;
-const files=req?.files
-  const trainerData = new trainerModel(data);
+  data.trainer_available = data.trainer_available
+    ? JSON.parse(data.trainer_available)
+    : {};
 
-  if (!data.password) {
-    return next(new ApiError("Password is required", 404));
-  }
-  trainerData.password = await bcrypt.hash(data.password, saltRounds);
+  // if (!data.password) {
+  //   return next(new ApiError("Password is required", 404));
+  // }
+  // trainerData.password = await bcrypt.hash(data.password, saltRounds);
+  const trainerData = new trainerModel(data);
+  const files = req?.files;
 
   // Check if files were uploaded
   if (files && Object.keys(files).length > 0) {
     if (files.profile_image)
-    trainerData.profile_image = files.profile_image[0].filename;
+      trainerData.profile_image = files.profile_image[0].filename;
   }
 
   const savedTrainer = await trainerModel.create(trainerData);
@@ -52,6 +55,9 @@ export const UpdateTrainer = catchAsync(async (req, res) => {
     updateData.language = JSON.parse(updateData.language);
   updateData.updated_at = Date.now();
 
+  if (updateData.trainer_available) {
+    updateData.trainer_available = JSON.parse(updateData.trainer_available);
+  }
   if (files && Object.keys(files).length > 0) {
     updateData.profile_image = files.profile_image[0].filename;
   }

@@ -4,6 +4,7 @@ import authMiddleware from "../../middleware/adminAuth.js";
 import {
   AddMember,
   ChangePassword,
+  DropdownMemberMaster,
   GetMember,
   UpdateMember,
 } from "../../controllers/Admin/member.js";
@@ -44,5 +45,12 @@ router.get(
   GetMember
 );
 // router.get("/list", FetchMember);
+//dropdown list
+router.get(
+  "/dropdown-list",
+  authMiddleware,
+  rolesPermissions("member", "view"),
+  DropdownMemberMaster
+);
 
 export default router;

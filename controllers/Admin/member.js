@@ -209,3 +209,20 @@ export const GetMember = catchAsync(async (req, res) => {
     totalPages: totalDocuments,
   });
 });
+
+//dropdown list members
+export const DropdownMemberMaster = catchAsync(async (req, res) => {
+  const list = await memberModel.aggregate([
+    {
+      $project: {
+        first_name: 1,
+        last_name: 1,
+      },
+    },
+  ]);
+  res.status(200).json({
+    result: list,
+    status: true,
+    message: "Members Dropdown List",
+  });
+});

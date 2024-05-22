@@ -259,4 +259,54 @@ export const UpdateImages = catchAsync(async (req, res) => {
   });
 });
 
+export const UpdateIssueLibraryBook = catchAsync(async (req, res) => {
+  const bookId = req.params.id;
+  const updateData = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid book ID", data: null });
+  }
+
+  const getBookDataById = await libraryModel.findOne({
+    _id: bookId,
+    "issued_members.member_id": updateData?.member_id,
+    "issued_members.status": "not_returned",
+  });
+
+  if (getBookDataById) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Member has not returned the book", data: null });
+  }
+
+  const book = await libraryModel.findByIdAndUpdate(
+    bookId,
+    {
+      $push: {
+        issued_members: updateData,
+      },
+      $inc: {
+        available_quantity: -1,
+        issued_quantity: 1,
+      },
+    },
+
+    { new: true, runValidators: true }
+  );
+  if (!book) {
+    return res.status(404).json({
+      status: false,
+      message: "Book not found.",
+    });
+  }
+
+  return res.status(200).json({
+    status: true,
+    data: book,
+    message: "Issued successfully",
+  });
+});
+
 export const BookingLibrary = catchAsync(async (req, res) => {});
