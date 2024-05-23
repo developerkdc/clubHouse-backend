@@ -93,7 +93,10 @@ const NutritionistSchema = new mongoose.Schema({
       },
     ],
   },
-
+  description: {
+    type: String,
+    trim: true,
+  },
   language: {
     type: [String],
     trim: true,
@@ -212,6 +215,10 @@ const TrainerSchema = new mongoose.Schema({
         status: { type: Boolean, default: false },
       },
     ],
+  },
+  description: {
+    type: String,
+    trim: true,
   },
   experience: { type: Number, trim: true, default: 0 },
   language: { type: [{ type: String, trim: true }], default: null },

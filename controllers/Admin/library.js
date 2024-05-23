@@ -145,6 +145,11 @@ export const GetLibrary = catchAsync(async (req, res) => {
   // Fetching library
   const library = await libraryModel
     .find({ ...filter, ...searchQuery })
+    .populate({
+      path: "issued_members.member_id",
+      model: "member",
+      select: "first_name last_name member_id",
+    })
     .sort(sort)
     .skip(skip)
     .limit(limit);
@@ -162,6 +167,31 @@ export const GetLibrary = catchAsync(async (req, res) => {
     message: "Fetched successfully",
     totalPages: totalPages,
   });
+});
+
+export const GetLibraryById = catchAsync(async (req, res) => {
+  const id = req.params.id;
+  if (id) {
+    const library = await libraryModel.findById(id).populate({
+      path: "issued_members.member_id",
+      model: "member",
+      select: "first_name last_name member_id",
+    });
+
+    if (!library) {
+      return res.status(400).json({
+        status: false,
+        data: null,
+        message: "Book not found.",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: library,
+      message: "Fetched Details By Id successfully",
+    });
+  }
 });
 
 export const UpdateImages = catchAsync(async (req, res) => {
@@ -268,17 +298,21 @@ export const UpdateIssueLibraryBook = catchAsync(async (req, res) => {
       .status(400)
       .json({ status: false, message: "Invalid book ID", data: null });
   }
-
   const getBookDataById = await libraryModel.findOne({
     _id: bookId,
-    "issued_members.member_id": updateData?.member_id,
-    "issued_members.status": "not_returned",
+    issued_members: {
+      $elemMatch: {
+        member_id: updateData?.member_id,
+        status: "not_returned",
+      },
+    },
   });
-
   if (getBookDataById) {
-    return res
-      .status(400)
-      .json({ status: false, message: "Member has not returned the book", data: null });
+    return res.status(400).json({
+      status: false,
+      message: "Member has not returned the book",
+      data: null,
+    });
   }
 
   const book = await libraryModel.findByIdAndUpdate(
@@ -294,6 +328,52 @@ export const UpdateIssueLibraryBook = catchAsync(async (req, res) => {
     },
 
     { new: true, runValidators: true }
+  );
+  if (!book) {
+    return res.status(404).json({
+      status: false,
+      message: "Book not found.",
+    });
+  }
+
+  return res.status(200).json({
+    status: true,
+    data: book,
+    message: "Issued successfully",
+  });
+});
+
+export const UpdateIssueBookReturnDate = catchAsync(async (req, res) => {
+  const bookId = req.params.id;
+  const updateData = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid book ID", data: null });
+  }
+
+  const book = await libraryModel.updateOne(
+    {
+      _id: bookId,
+      "issued_members._id": updateData?._id,
+    },
+    {
+      $set: {
+        "issued_members.$[e].status": "returned",
+        "issued_members.$[e].returned_date": updateData?.returned_date,
+      },
+      $inc: {
+        available_quantity: 1,
+        issued_quantity: -1,
+      },
+    },
+
+    {
+      arrayFilters: [{ "e._id": updateData?._id }],
+      new: true,
+      runValidators: true,
+    }
   );
   if (!book) {
     return res.status(404).json({

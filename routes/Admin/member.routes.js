@@ -15,9 +15,10 @@ router.post(
   "/add",
   authMiddleware,
   rolesPermissions("member", "add"),
-  MulterFunction("./uploads/member").fields([
-    { name: "profile_image", maxCount: 1 },
-  ]),
+  // MulterFunction("./uploads/member").fields([
+  //   { name: "profile_image", maxCount: 1 },{ name: 'family_member[0][profile_image]' },
+  // ]),
+  MulterFunction("./uploads/member").any(),
   AddMember
 );
 // router.post("/add", AddMember);
@@ -25,9 +26,10 @@ router.patch(
   "/edit/:id",
   authMiddleware,
   rolesPermissions("member", "edit"),
-  MulterFunction("./uploads/member").fields([
-    { name: "profile_image", maxCount: 1 },
-  ]),
+  // MulterFunction("./uploads/member").fields([
+  //   { name: "profile_image", maxCount: 1 },{ name: 'family_member[0][profile_image]' }
+  // ]),
+  MulterFunction("./uploads/member").any(),
   UpdateMember
 );
 // router.patch("/edit/:id",UpdateMember);

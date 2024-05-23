@@ -42,7 +42,7 @@ const LibrarySchema = new mongoose.Schema({
       },
       returned_date: {
         type: Date,
-        default: () => new Date().setUTCHours(0, 0, 0, 0),
+        default: null,
       },
       status: {
         type: String,

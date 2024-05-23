@@ -6,6 +6,8 @@ import {
   UpdateLibrary,
   UpdateImages,
   UpdateIssueLibraryBook,
+  GetLibraryById,
+  UpdateIssueBookReturnDate,
 } from "../../controllers/Admin/library.js";
 
 import authMiddleware from "../../middleware/adminAuth.js";
@@ -41,6 +43,13 @@ router.get(
   GetLibrary
 );
 
+router.get(
+  "/list/:id",
+  authMiddleware,
+  rolesPermissions("library", "view"),
+  GetLibraryById
+);
+
 router.post(
   "/update-images/:id",
   authMiddleware,
@@ -64,4 +73,13 @@ router.patch(
   rolesPermissions("library", "add"),
   UpdateIssueLibraryBook
 );
+
+//update returned book date
+router.patch(
+  "/return-book/:id",
+  authMiddleware,
+  rolesPermissions("library", "edit"),
+  UpdateIssueBookReturnDate
+);
+
 export default router;
