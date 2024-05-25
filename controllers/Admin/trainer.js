@@ -131,7 +131,7 @@ export const GetTrainer = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const {
-    sortField = "trainer_id",
+    sortField = "created_at",
     sortOrder = "desc",
     search,
     // status,

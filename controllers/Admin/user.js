@@ -95,7 +95,7 @@ export const GetUsers = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const { sortField = "user_id", sortOrder = "desc", search, role, start_date, end_date,id } = req.query;
+  const { sortField = "created_at", sortOrder = "desc", search, role, start_date, end_date,id } = req.query;
   // const sortField = req.query.sortField || "user_id";
   // const sortOrder = req.query.sortOrder || "asc";
   if (id) {
