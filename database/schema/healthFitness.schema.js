@@ -4,15 +4,11 @@ import mongoose from "mongoose";
 const NutritionistSchema = new mongoose.Schema({
   first_name: {
     type: String,
-    minlength: 2,
-    maxlength: 25,
     required: [true, "First name is required."],
     trim: true,
   },
   last_name: {
     type: String,
-    minlength: 2,
-    maxlength: 25,
     required: [true, "Last name is required."],
     trim: true,
   },
@@ -22,11 +18,9 @@ const NutritionistSchema = new mongoose.Schema({
     trim: true,
     enum: ["Male", "Female"],
   },
-  age: { type: Number, min: 20, default: null },
+  age: { type: Number, default: null },
   email_id: {
     type: String,
-    minlength: 5,
-    maxlength: 50,
     required: [true, "Email ID required."],
     trim: true,
     unique: true,
@@ -35,8 +29,6 @@ const NutritionistSchema = new mongoose.Schema({
   // password: { type: String, required: [true, "Password is required."], trim: true },
   mobile_no: {
     type: String,
-    minlength: 10,
-    maxlength: 10,
     unique: true,
     trim: true,
     default: null,
@@ -128,15 +120,11 @@ export const nutritionistModel = mongoose.model(
 const TrainerSchema = new mongoose.Schema({
   first_name: {
     type: String,
-    minlength: 2,
-    maxlength: 25,
     required: [true, "First name is required."],
     trim: true,
   },
   last_name: {
     type: String,
-    minlength: 2,
-    maxlength: 25,
     required: [true, "Last name is required."],
     trim: true,
   },
@@ -146,11 +134,9 @@ const TrainerSchema = new mongoose.Schema({
     trim: true,
     enum: ["Male", "Female"],
   },
-  age: { type: Number, min: 20, default: null },
+  age: { type: Number, default: null },
   email_id: {
     type: String,
-    minlength: 5,
-    maxlength: 50,
     required: [true, "Email ID required."],
     trim: true,
     unique: true,
@@ -159,8 +145,6 @@ const TrainerSchema = new mongoose.Schema({
   // password: { type: String, required: [true, "Password is required."], trim: true },
   mobile_no: {
     type: String,
-    minlength: 10,
-    maxlength: 10,
     unique: true,
     trim: true,
     default: null,

@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 const EventSchema = new mongoose.Schema({
   category: {
     type: String,
-    minlength: 1,
-    maxlength: 150,
     required: [true, "Category is required."],
     indexedDB: true,
     trim: true,
@@ -16,11 +14,15 @@ const EventSchema = new mongoose.Schema({
     required: [true, "Title is required."],
     trim: true,
   },
-  short_description: { type: String, minlength: 1, trim: true, default: null },
-  description: { type: String, minlength: 1, trim: true, default: null },
-  banner_image: { type: String, minlength: 1, trim: true, default: null },
-  images: [{ type: String, minlength: 2, maxlength: 250, trim: true, default: null }],
-  videos: [{ type: String, minlength: 2, maxlength: 250, trim: true, default: null }],
+  short_description: { type: String, trim: true, default: null },
+  description: { type: String, trim: true, default: null },
+  banner_image: { type: String, trim: true, default: null },
+  images: [
+    { type: String, minlength: 2, maxlength: 250, trim: true, default: null },
+  ],
+  videos: [
+    { type: String, minlength: 2, maxlength: 250, trim: true, default: null },
+  ],
   event_type: {
     type: String,
     indexedDB: true,
