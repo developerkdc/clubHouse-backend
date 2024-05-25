@@ -155,7 +155,7 @@ export const GetGallery = catchAsync(async (req, res) => {
     status: true,
     data: gallery,
     message: "Fetched successfully",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
 

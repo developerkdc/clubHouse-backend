@@ -215,6 +215,6 @@ export const GetNutritionist = catchAsync(async (req, res) => {
     status: true,
     data: nutritionists,
     message: "Nutritionists List.",
-    totalPages: totalPages,
+    totalPages: totalDocuments,
   });
 });
