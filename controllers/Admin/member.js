@@ -239,7 +239,7 @@ export const GetMember = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const {
-    sortField = "member_id",
+    sortField = "created_at",
     sortOrder = "desc",
     search,
     // status,
