@@ -28,7 +28,9 @@ export const UpdateUser = catchAsync(async (req, res) => {
   const updateData = req.body;
   updateData.updated_at = Date.now();
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ status: false, message: "Invalid user ID", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid user ID", data: null });
   }
 
   if (updateData.password) {
@@ -37,7 +39,11 @@ export const UpdateUser = catchAsync(async (req, res) => {
   }
   updateData.updated_at = Date.now();
 
-  const user = await userModel.findByIdAndUpdate(userId, { $set: updateData }, { new: true, runValidators: true });
+  const user = await userModel.findByIdAndUpdate(
+    userId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
   if (!user) {
     return res.status(404).json({
       status: false,
@@ -57,11 +63,15 @@ export const ChangePassword = catchAsync(async (req, res) => {
   const { confirm_password, new_password } = req.body;
   const saltRounds = 10;
   if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ status: false, message: "Invalid user ID.", data: null });
+    return res
+      .status(400)
+      .json({ status: false, message: "Invalid user ID.", data: null });
   }
   const user = await userModel.findById(userId);
   if (!user) {
-    return res.status(404).json({ status: false, message: "User not found", data: null });
+    return res
+      .status(404)
+      .json({ status: false, message: "User not found", data: null });
   }
 
   if (!new_password || !confirm_password) {
@@ -79,7 +89,7 @@ export const ChangePassword = catchAsync(async (req, res) => {
       message: "Confirm password is not same as New password.",
     });
   }
-  
+
   const hashedPassword = await bcrypt.hash(new_password, saltRounds);
   user.password = hashedPassword;
   const updatedUser = await user.save();
@@ -95,7 +105,15 @@ export const GetUsers = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const { sortField = "created_at", sortOrder = "desc", search, role, start_date, end_date,id } = req.query;
+  const {
+    sortField = "created_at",
+    sortOrder = "desc",
+    search,
+    role,
+    start_date,
+    end_date,
+    id,
+  } = req.query;
   // const sortField = req.query.sortField || "user_id";
   // const sortOrder = req.query.sortOrder || "asc";
   if (id) {
@@ -119,24 +137,65 @@ export const GetUsers = catchAsync(async (req, res) => {
   if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
   //search  functionality
-  var searchQuery = { deleted_at: null };
+  // var searchQuery = { deleted_at: null };
+  // if (search) {
+  //   const searchRegex = new RegExp(".*" + search + ".*", "i");
+  //   searchQuery = {
+  //     ...searchQuery,
+  //     $or: [
+  //       // {
+  //       //   user_id: isNaN(parseInt(search)) ? null : parseInt(search),
+  //       // },
+  //       { first_name: searchRegex },
+  //       { last_name: searchRegex },
+  //       { email_id: searchRegex },
+  //       { mobile_no: searchRegex },
+  //       ...(isNaN(parseInt(search))
+  //         ? [] // If not a valid number, don't include user_id conditions
+  //         : [{ user_id: parseInt(search) }]),
+  //     ],
+  //   };
+  // }
+  let searchQuery = { deleted_at: null };
+
   if (search) {
-    const searchRegex = new RegExp(".*" + search + ".*", "i");
-    searchQuery = {
-      ...searchQuery,
-      $or: [
-        // {
-        //   user_id: isNaN(parseInt(search)) ? null : parseInt(search),
-        // },
-        { first_name: searchRegex },
-        { last_name: searchRegex },
-        { email_id: searchRegex },
-        { mobile_no: searchRegex },
-        ...(isNaN(parseInt(search))
-          ? [] // If not a valid number, don't include user_id conditions
-          : [{ user_id: parseInt(search) }]),
-      ],
-    };
+    const searchParts = search
+      .split(" ")
+      .map((part) => new RegExp(".*" + part + ".*", "i"));
+
+    if (searchParts.length === 1) {
+      const searchRegex = searchParts[0];
+      searchQuery = {
+        ...searchQuery,
+        $or: [
+          { first_name: searchRegex },
+          { last_name: searchRegex },
+          { email_id: searchRegex },
+          { mobile_no: searchRegex },
+          ...(isNaN(parseInt(search))
+            ? [] 
+            : [{ user_id: parseInt(search) }]),
+        ],
+      };
+    } else {
+      searchQuery = {
+        ...searchQuery,
+        $or: [
+          {
+            $and: [
+              { first_name: searchParts[0] },
+              { last_name: searchParts[1] },
+            ],
+          },
+          {
+            $and: [
+              { first_name: searchParts[1] },
+              { last_name: searchParts[0] },
+            ],
+          },
+        ],
+      };
+    }
   }
 
   //filter functionality
