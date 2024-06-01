@@ -72,8 +72,8 @@ export const UpdateLibrary = catchAsync(async (req, res) => {
 
 export const GetLibrary = catchAsync(async (req, res) => {
   const {
-    sortField = "created_at",
-    sortOrder = "desc",
+    sortField ,
+    sortOrder ,
     search,
     start_date,
     end_date,
@@ -104,8 +104,12 @@ export const GetLibrary = catchAsync(async (req, res) => {
   }
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
   //search  functionality
   var searchQuery = { deleted_at: null };
   if (search) {

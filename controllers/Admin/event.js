@@ -105,8 +105,8 @@ export const UpdateEvent = catchAsync(async (req, res) => {
 
 export const GetEvent = catchAsync(async (req, res) => {
   const {
-    sortField = "created_at",
-    sortOrder = "desc",
+    sortField ,
+    sortOrder ,
     search,
     start_date,
     end_date,
@@ -138,8 +138,12 @@ export const GetEvent = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
   //search  functionality
   var searchQuery = { deleted_at: null };
   if (search) {

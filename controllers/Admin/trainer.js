@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import catchAsync from "../../Utils/catchAsync.js";
 import { trainerModel } from "../../database/schema/healthFitness.schema.js";
 import bcrypt from "bcrypt";
-import ApiError from "../../Utils/ApiError.js";
 
 export const AddTrainer = catchAsync(async (req, res, next) => {
   const data = req.body;
@@ -130,15 +129,7 @@ export const GetTrainer = catchAsync(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const {
-    sortField = "created_at",
-    sortOrder = "desc",
-    search,
-    // status,
-    start_date,
-    end_date,
-    id,
-  } = req.query;
+  const { sortField, sortOrder, search, start_date, end_date, id } = req.query;
 
   if (id) {
     const trainer = await trainerModel.findById(id);
@@ -159,8 +150,12 @@ export const GetTrainer = catchAsync(async (req, res) => {
   }
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
   //search  functionality
   var searchQuery = { deleted_at: null };
   if (search) {

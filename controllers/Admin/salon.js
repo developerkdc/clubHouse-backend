@@ -82,7 +82,7 @@ export const UpdateSalon = catchAsync(async (req, res) => {
 });
 
 export const GetSalon = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, salon_start_date, id} = req.query;
+  const { sortField, sortOrder, search, start_date, end_date, salon_start_date, id} = req.query;
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -107,7 +107,12 @@ export const GetSalon = catchAsync(async (req, res) => {
   }
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
 
   //search  functionality
   var searchQuery = { deleted_at: null };

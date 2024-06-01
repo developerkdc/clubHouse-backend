@@ -239,8 +239,8 @@ export const GetMember = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const {
-    sortField = "created_at",
-    sortOrder = "desc",
+    sortField,
+    sortOrder ,
     search,
     // status,
     start_date,
@@ -269,7 +269,12 @@ export const GetMember = catchAsync(async (req, res) => {
   // const sortField = req.query.sortField || "member_id";
   // const sortOrder = req.query.sortOrder || "asc";
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
 
   //search  functionality
   var searchQuery = { deleted_at: null };

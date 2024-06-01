@@ -69,7 +69,7 @@ export const UpdateSpa = catchAsync(async (req, res) => {
 });
 
 export const GetSpa = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, spa_start_date, id } = req.query;
+  const { sortField , sortOrder , search, start_date, end_date, spa_start_date, id } = req.query;
 
   if (id) {
     const spa = await spaModel.findById(id);
@@ -94,7 +94,12 @@ export const GetSpa = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
 
   //search  functionality
   var searchQuery = { deleted_at: null };

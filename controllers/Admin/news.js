@@ -65,8 +65,8 @@ export const GetNews = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const {
-    sortField = "created_at",
-    sortOrder = "desc",
+    sortField ,
+    sortOrder ,
     search,
     role,
     start_date,
@@ -92,7 +92,12 @@ export const GetNews = catchAsync(async (req, res) => {
     });
   }
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
 
   //search  functionality
   var searchQuery = { deleted_at: null };

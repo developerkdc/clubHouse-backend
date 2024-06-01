@@ -82,7 +82,7 @@ export const UpdateSport = catchAsync(async (req, res) => {
 });
 
 export const GetSport = catchAsync(async (req, res) => {
-  const { sortField = "created_at", sortOrder = "desc", search, start_date, end_date, sport_start_date, id } = req.query;
+  const { sortField , sortOrder, search, start_date, end_date, sport_start_date, id } = req.query;
 
   if (id) {
     const sport = await sportModel.findById(id);
@@ -106,8 +106,12 @@ export const GetSport = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
 
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
   //search  functionality
   var searchQuery = { deleted_at: null };
   if (search) {

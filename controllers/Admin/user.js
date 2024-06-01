@@ -106,16 +106,14 @@ export const GetUsers = catchAsync(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const {
-    sortField = "created_at",
-    sortOrder = "desc",
+    sortField,
+    sortOrder,
     search,
     role,
     start_date,
     end_date,
     id,
   } = req.query;
-  // const sortField = req.query.sortField || "user_id";
-  // const sortOrder = req.query.sortOrder || "asc";
   if (id) {
     const user = await userModel.findById(id);
 
@@ -134,28 +132,13 @@ export const GetUsers = catchAsync(async (req, res) => {
     });
   }
   const sort = {};
-  if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
-
-  //search  functionality
-  // var searchQuery = { deleted_at: null };
-  // if (search) {
-  //   const searchRegex = new RegExp(".*" + search + ".*", "i");
-  //   searchQuery = {
-  //     ...searchQuery,
-  //     $or: [
-  //       // {
-  //       //   user_id: isNaN(parseInt(search)) ? null : parseInt(search),
-  //       // },
-  //       { first_name: searchRegex },
-  //       { last_name: searchRegex },
-  //       { email_id: searchRegex },
-  //       { mobile_no: searchRegex },
-  //       ...(isNaN(parseInt(search))
-  //         ? [] // If not a valid number, don't include user_id conditions
-  //         : [{ user_id: parseInt(search) }]),
-  //     ],
-  //   };
-  // }
+  console.log(sortField,"1377777")
+  // if (sortField) sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  if (sortField) {
+    sort[sortField] = sortOrder === "asc" ? 1 : -1;
+  } else {
+    sort["created_at"] = -1;
+  }
   let searchQuery = { deleted_at: null };
 
   if (search) {
