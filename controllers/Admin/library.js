@@ -71,15 +71,7 @@ export const UpdateLibrary = catchAsync(async (req, res) => {
 });
 
 export const GetLibrary = catchAsync(async (req, res) => {
-  const {
-    sortField ,
-    sortOrder ,
-    search,
-    start_date,
-    end_date,
-    library_start_date,
-    id,
-  } = req.query;
+  const { sortField, sortOrder, search, id } = req.query;
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -120,6 +112,7 @@ export const GetLibrary = catchAsync(async (req, res) => {
         { book_name: searchRegex },
         { category: searchRegex },
         { author_name: searchRegex },
+        { book_location: searchRegex },
         ...(isNaN(parseInt(search))
           ? [] // If not a valid number, don't include duration and rate conditions
           : [
